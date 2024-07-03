@@ -6,7 +6,7 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/28 20:10:23 by girts             #+#    #+#             */
-/*   Updated: 2024/07/03 12:47:43 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/03 22:14:16 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void redraw_sprite(t_data *data);
 int on_keypress(int keysym, t_data *data);
 void redraw(t_data *data);
 void render_map(t_data *data);
-void load_map(t_data *data, char *filename, int *row_len);
+void load_map(t_data *data, char *filename);
 void animate_sprite(t_data *data);
 int animate_loop(t_data *data);
 void on_win(t_data *data);
@@ -71,5 +71,7 @@ void on_lose(t_data *data);
 void move_ghosts(t_data *data);
 int animate_move_ghost(t_data *data);
 int validate_path(t_data *data);
+t_list	*ft_lst_remove_last(t_list **lst);
+void error(t_data *data, char *str);
 
 #endif
