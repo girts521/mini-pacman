@@ -1,5 +1,9 @@
 {
 	"files.associations": {
-		"mlx.h": "c"
+		"mlx.h": "c",
+		"cstdlib": "c",
+		"so_long.h": "c",
+		"libft.h": "c",
+		"*.tcc": "c"
 	}
 }

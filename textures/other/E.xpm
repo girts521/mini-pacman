@@ -1,0 +1,25 @@
+/* XPM */
+static char *e_letter[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1 ",
+"  c None",
+". c None",
+"X c #FFFF00",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXX.............",
+"XXX.............",
+"XXX              ",
+"XXX              ",
+"XXX              ",
+"XXXXXXXXXXXXXXX  ",
+"XXXXXXXXXXXXXXX  ",
+"XXX              ",
+"XXX              ",
+"XXX              ",
+"XXX.............",
+"XXX.............",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX"
+};

@@ -1,81 +1,53 @@
-#include "minilibx-linux/mlx.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <X11/X.h>
-#include <X11/keysym.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/06/28 10:05:01 by girts             #+#    #+#             */
+/*   Updated: 2024/07/03 14:19:11 by girts            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-typedef struct s_data {
-    void *mlx_ptr;
-    void *win_ptr;
-    void *image;
-    int img_width;
-    int img_height;
-    char *addr;
-    int bpp;
-    int line_length;
-    int endian;
-} t_data;
+#include "so_long.h"
 
-int on_destroy(t_data *data)
+// static int on_expose(t_data *data)
+// {
+//     redraw(data);
+//     return (0);
+// }
+
+static void print_map(char **map, int rowlen)
 {
-    if (data->image)
-    {
-        mlx_destroy_image(data->mlx_ptr, data->image);
-        data->image = NULL;
+    int row = 0;
+
+    while (row < rowlen) {
+        int col = 0;
+        while (map[row][col] != '\0') {
+            printf("%c", map[row][col]);
+            col++;
+        }
+        printf("\n");
+        row++;
     }
-    if (data->win_ptr)
-    {
-        mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-    }
-    if (data->mlx_ptr)
-    {
-        mlx_destroy_display(data->mlx_ptr);
-        free(data->mlx_ptr);
-    }
-    exit(0);
-    return (0);
 }
 
-int on_keypress(int keysym, t_data *data)
+int main(int argc, char **argv)
 {
-    printf("Pressed key: %d\n", keysym);
-    if (keysym == 65307) // Escape key
+    t_data  data;
+    int     row_len;
+    int     i;
+
+
+    if (argc < 2)
     {
-        on_destroy(data);
+        fprintf(stderr, "Usage: %s <map_file> ghost count\n", argv[0]);
         return (1);
     }
-    return (0);
-}
-
-void put_pixel_to_image(t_data *data, int x, int y, int color)
-{
-    char *dst;
-
-    if (x >= 0 && x < data->img_width && y >= 0 && y < data->img_height)
-    {
-        dst = data->addr + (y * data->line_length + x * (data->bpp / 8));
-        *(unsigned int*)dst = color;
-    }
-}
-
-void verify_image_data(t_data *data)
-{
-    printf("First 100 bytes of image data after manipulation:\n");
-    for (int i = 0; i < 100; ++i)
-    {
-        printf("%02x ", (unsigned char)data->addr[i]);
-        if (i % 16 == 15)
-            printf("\n");
-    }
-    printf("\n");
-}
-
-int main(void)
-{
-    t_data data;
-
-    data.img_width = 600;
-    data.img_height = 400;
+    ft_memset(&data, 0, sizeof(t_data));
+    data.img_width = 8;
+    data.img_height = 8;
 
     data.mlx_ptr = mlx_init();
     if (!data.mlx_ptr)
@@ -83,8 +55,7 @@ int main(void)
         fprintf(stderr, "Failed to initialize MLX\n");
         return (1);
     }
-
-    data.win_ptr = mlx_new_window(data.mlx_ptr, 600, 400, "Direct Image Test");
+    data.win_ptr = mlx_new_window(data.mlx_ptr, 600, 400, "hi :)");
     if (!data.win_ptr)
     {
         fprintf(stderr, "Failed to create window\n");
@@ -92,70 +63,74 @@ int main(void)
         return (1);
     }
 
+    data.x = 0;
+    data.y = 100;
+    data.frame_count = 8;
+    data.current_frame = 0;
+    data.image = NULL;
+    data.map = NULL;
+    data.dot = NULL;
+    data.collectable = NULL;
+    data.wall = NULL;
+    data.started = 0;
+    data.frame_counter = 0;
+    data.current_frame = 0;
+    data.ghost_count = 0;
+    data.game_over = 0;
+    data.ghosts_frame_counter = 0;
+    data.moves = 0;
+    if(argc == 3)
+    {
+        data.ghosts_to_render = ft_atoi(argv[2]);
+    }
+    else
+    {
+        data.ghosts_to_render = 1;
+    }
+    
+    printf("ghosts to render: %d\n", data.ghosts_to_render);
+
+    //alloate memory for ghosts loation array [[0,0], [0,0], [0,0]]
+    data.ghosts_location = malloc(sizeof(int*) * data.ghosts_to_render);
+    i = 0;
+    while (i < data.ghosts_to_render)
+    {
+        data.ghosts_location[i] = malloc(sizeof(int) * 4);
+        i++;
+    }
+
+    i = 0;
+    while (i < data.ghosts_to_render)
+    {
+        data.ghosts_location[i][0] = 0;
+        data.ghosts_location[i][1] = 0;
+        data.ghosts_location[i][2] = 0;
+        data.ghosts_location[i][3] = 0;
+        i++;
+    }
+
+
+    load_map(&data, argv[1], &row_len);
+    validate_path(&data);
+    print_map(data.map,row_len);
+
+    
+
+    animate_sprite(&data);
+
+
+    render_map(&data);
     // Register key release hook
-    mlx_hook(data.win_ptr, KeyRelease, KeyReleaseMask, &on_keypress, &data);
+    mlx_hook(data.win_ptr, KeyPress, KeyPressMask, &on_keypress, &data);
 
     // Register destroy hook
     mlx_hook(data.win_ptr, DestroyNotify, StructureNotifyMask, &on_destroy, &data);
 
-    // Create a new image instead of loading from file
-    data.image = mlx_new_image(data.mlx_ptr, data.img_width, data.img_height);
-    if (!data.image)
-    {
-        fprintf(stderr, "Failed to create new image\n");
-        mlx_destroy_window(data.mlx_ptr, data.win_ptr);
-        mlx_destroy_display(data.mlx_ptr);
-        free(data.mlx_ptr);
-        return (1);
-    }
-
-    printf("New image created successfully\n");
-    printf("Image width: %d, height: %d\n", data.img_width, data.img_height);
-
-    data.addr = mlx_get_data_addr(data.image, &data.bpp, &data.line_length, &data.endian);
-    if (!data.addr)
-    {
-        fprintf(stderr, "Failed to get image data address\n");
-        mlx_destroy_image(data.mlx_ptr, data.image);
-        mlx_destroy_window(data.mlx_ptr, data.win_ptr);
-        mlx_destroy_display(data.mlx_ptr);
-        free(data.mlx_ptr);
-        return (1);
-    }
-
-    printf("First 100 bytes of image data:\n");
-    for (int i = 0; i < 100; ++i)
-    {
-        printf("%02x ", (unsigned char)data.addr[i]);
-        if (i % 16 == 15)
-            printf("\n");
-    }
-    printf("\n");
-
-    // Drawing simple pattern
-    for (int y = 0; y < data.img_height; y++)
-    {
-        for (int x = 0; x < data.img_width; x++)
-        {
-            if ((x + y) % 2 == 0)
-            {
-                put_pixel_to_image(&data, x, y, 0xFF0000); // Red color
-            }
-            else
-            {
-                put_pixel_to_image(&data, x, y, 0x0000FF); // Blue color
-            }
-        }
-    }
-
-    // Verify image data after manipulation
-    verify_image_data(&data);
-
-    // Put the modified image to window
-    mlx_put_image_to_window(data.mlx_ptr, data.win_ptr, data.image, 0, 0);
+    mlx_loop_hook(data.mlx_ptr, animate_loop, &data);
+    // mlx_loop_hook(data.mlx_ptr, animate_move_ghost, &data);
+    // mlx_hook(data.win_ptr, Expose, ExposureMask, &on_expose, &data);
 
     // Loop over the MLX pointer
     mlx_loop(data.mlx_ptr);
-
-    return (0);
+    return (1);
 }

@@ -1,7 +1,10 @@
 /* XPM */
-static char * red_xpm[] = {
-"16 16 1 1",
-"  c #FF0000",
+static char *b9d2a6bfa7aa4170f23d7857b9c082270Lb2hKNZWahCR3jy[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 2 1 ",
+"  c None",
+". c white",
+/* pixels */
 "                ",
 "                ",
 "                ",
@@ -9,12 +12,13 @@ static char * red_xpm[] = {
 "                ",
 "                ",
 "                ",
+"       ..       ",
+"       ..       ",
 "                ",
 "                ",
 "                ",
 "                ",
 "                ",
 "                ",
-"                ",
-"                ",
-"                "};
+"                "
+};
