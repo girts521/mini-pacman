@@ -8,9 +8,9 @@ MLX_LIB = $(MLX_DIR)/libmlx_Linux.a
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 
-SRCS = get_next_line.c on_destroy.c draw_sprite.c redraw_sprite.c on_keypress.c redraw.c \
+SRCS = get_next_line.c on_destroy.c draw_sprite.c on_keypress.c free_resources.c \
 		 render_map.c load_map.c animate_sprite.c on_win.c on_lose.c move_ghosts.c validate_path.c \
-		 ft_lst_remove_last.c error.c main.c
+		 ft_lst_remove_last.c error.c validate_utils.c main.c
 OBJS = $(SRCS:.c=.o)
 
 INCLUDES = -I/usr/include -Imlx -I./includes -I$(LIBFT_DIR) -I./

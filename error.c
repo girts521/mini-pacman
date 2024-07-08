@@ -6,13 +6,13 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 22:13:02 by girts             #+#    #+#             */
-/*   Updated: 2024/07/03 22:14:03 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/04 19:41:49 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void error(t_data *data, char *str)
+void	error(t_data *data, char *str)
 {
 	fprintf(stderr, "Error\n");
 	fprintf(stderr, "%s\n", str);

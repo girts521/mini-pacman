@@ -6,134 +6,113 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 13:33:27 by girts             #+#    #+#             */
-/*   Updated: 2024/07/03 12:50:48 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/04 23:04:21 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void move_ghosts(t_data *data)
+void	update_ghosts_location(t_data *data, int direction, int i)
 {
-    int i;
-    int ghost_x, ghost_y;
-	int moved;
+	if (direction == 0)
+		data->ghosts_location[i][0] += 1;
+	else if (direction == 1)
+		data->ghosts_location[i][0] -= 1;
+	else if (direction == 2)
+		data->ghosts_location[i][1] -= 1;
+	else if (direction == 3)
+		data->ghosts_location[i][1] += 1;
+	data->ghosts_location[i][2] = direction;
+}
 
-	moved = 0;
-	i = 0;
-    while ( i < data->ghosts_to_render)
+static void	try_move_ghost(t_data *data, int i, int dir, int *moved)
+{
+	int	x;
+	int	y;
+
+	x = data->ghosts_location[i][0];
+	y = data->ghosts_location[i][1];
+	if (dir == 0 && data->map[y][x + 1] != '1' && x + 1 < data->col_len)
 	{
-        // Calculate current grid position of the ghost
-        ghost_x = data->ghosts_location[i][0];
-        ghost_y = data->ghosts_location[i][1];
-		int old_ghost_x = ghost_x;
-        int old_ghost_y = ghost_y;
+		update_ghosts_location(data, dir, i);
+		*moved = 1;
+	}
+	if (dir == 1 && data->map[y][x - 1] != '1' && x - 1 >= 0)
+	{
+		update_ghosts_location(data, dir, i);
+		*moved = 1;
+	}
+	else if (dir == 2 && data->map[y - 1][x] != '1' && y - 1 >= 0)
+	{
+		update_ghosts_location(data, dir, i);
+		*moved = 1;
+	}
+	else if (dir == 3 && data->map[y + 1][x] != '1' && y + 1 < data->row_len)
+	{
+		update_ghosts_location(data, dir, i);
+		*moved = 1;
+	}
+}
 
+static void	try_alternate_moves(t_data *data, int i)
+{
+	int	ghost_x;
+	int	ghost_y;
 
-		//try previous direction first
-		//right = 0, left = 1, up = 2, down = 3
-		if(data->ghosts_location[i][2] == 0)
-		{
-			// Move ghost right if possible
-        	if (data->map[ghost_y][ghost_x + 1] != '1' && ghost_x + 1 < data->col_len)
-			{
-            	data->ghosts_location[i][0] += 1;
-				moved = 1;
-				data->ghosts_location[i][2] = 0;
-			}
-        }
-		else if(data->ghosts_location[i][2] == 1)
-		{
-        	// Move ghost left if possible
-        	if (data->map[ghost_y][ghost_x - 1] != '1' && ghost_x - 1 >= 0)
-			{
-            	data->ghosts_location[i][0] -= 1;
-				moved = 1;
-				data->ghosts_location[i][2] = 1;
-				
-        	}
-        }
-		else if(data->ghosts_location[i][2] == 2)
-		{
-        // Move ghost up if possible
-        	if (data->map[ghost_y - 1][ghost_x] != '1' && ghost_y - 1 >= 0)
-			{
-            	data->ghosts_location[i][1] -= 1;
-				moved = 1;
-				data->ghosts_location[i][2] = 2;
-        	}
-        }
-		else if(data->ghosts_location[i][2] == 3)
-		{
-        	// Move ghost down if possible
-        	if (data->map[ghost_y + 1][ghost_x] != '1' && ghost_y + 1 < data->row_len)
-			{
-            	data->ghosts_location[i][1] += 1;
-				moved = 1;
-				data->ghosts_location[i][2] = 3;
-        	}
-        }
-		
+	ghost_x = data->ghosts_location[i][0];
+	ghost_y = data->ghosts_location[i][1];
+	if (data->map[ghost_y + 1][ghost_x] != '1' && ghost_y + 1 < data->row_len)
+		update_ghosts_location(data, 3, i);
+	else if (data->map[ghost_y - 1][ghost_x] != '1' && ghost_y - 1 >= 0)
+		update_ghosts_location(data, 2, i);
+	else if (data->map[ghost_y][ghost_x + 1] != '1' \
+				&& ghost_x + 1 < data->col_len)
+		update_ghosts_location(data, 0, i);
+	else if (data->map[ghost_y][ghost_x - 1] != '1' && ghost_x - 1 >= 0)
+		update_ghosts_location(data, 1, i);
+}
+
+static void	update_map(t_data *data, int i, int old_ghost_x, int old_ghost_y)
+{
+	int		ghost_x;
+	int		ghost_y;
+	char	current_content;
+
+	ghost_x = data->ghosts_location[i][0];
+	ghost_y = data->ghosts_location[i][1];
+	if (data->ghosts_location[i][3] == 1)
+	{
+		data->map[old_ghost_y][old_ghost_x] = 'C';
+		data->ghosts_location[i][3] = 0;
+	}
+	else
+		data->map[old_ghost_y][old_ghost_x] = '0';
+	if (ghost_x == data->x / 16 && ghost_y == data->y / 16)
+		on_lose(data);
+	current_content = data->map[ghost_y][ghost_x];
+	data->map[ghost_y][ghost_x] = 'G';
+	if (current_content == 'C')
+		data->ghosts_location[i][3] = 1;
+}
+
+void	move_ghosts(t_data *data)
+{
+	int	i;
+	int	old_ghost_x;
+	int	old_ghost_y;
+	int	moved;
+
+	i = 0;
+	while (i < data->ghosts_to_render)
+	{
+		old_ghost_x = data->ghosts_location[i][0];
+		old_ghost_y = data->ghosts_location[i][1];
+		moved = 0;
+		try_move_ghost(data, i, data->ghosts_location[i][2], &moved);
 		if (moved == 0)
-		{
-			// Move ghost down if possible
-        	if (data->map[ghost_y + 1][ghost_x] != '1' && ghost_y + 1 < data->row_len)
-			{
-            	data->ghosts_location[i][1] += 1;
-				data->ghosts_location[i][2] = 3;
-        	}
-        	// Move ghost up if possible
-        	else if (data->map[ghost_y - 1][ghost_x] != '1' && ghost_y - 1 >= 0)
-			{
-            	data->ghosts_location[i][1] -= 1;
-				data->ghosts_location[i][2] = 2;
-        	}
-        	// Move ghost right if possible
-        	else if (data->map[ghost_y][ghost_x + 1] != '1' && ghost_x + 1 < data->col_len)
-			{
-            	data->ghosts_location[i][0] += 1;
-				data->ghosts_location[i][2] = 0;
-        	}
-        	// Move ghost left if possible
-        	else if (data->map[ghost_y][ghost_x - 1] != '1' && ghost_x - 1 >= 0)
-			{
-            	data->ghosts_location[i][0] -= 1;
-				data->ghosts_location[i][2] = 1;
-        	}
-		}
-
-
-		// Update the map with the ghost's new position
-		if (data->ghosts_location[i][3] == 1)
-		{
-    		data->map[old_ghost_y][old_ghost_x] = 'C'; // Place collectible back
-    		data->ghosts_location[i][3] = 0; // Reset the collectible flag
-		}
-		else
-		{
-    		data->map[old_ghost_y][old_ghost_x] = '0'; // Clear old position
-		}
-
-		ghost_x = data->ghosts_location[i][0];
-		ghost_y = data->ghosts_location[i][1];
-
-		if (ghost_x == data->x / 16 && ghost_y == data->y / 16)
-		{
-    		on_lose(data);
-		}
-
-		// Store the current content of the new position
-		char current_content = data->map[ghost_y][ghost_x];
-
-		// Set new position to 'G', but remember if it was a collectible
-		data->map[ghost_y][ghost_x] = 'G';
-
-		// If the new position is a collectible, remember this for the next move
-		if (current_content == 'C')
-		{
-    		data->ghosts_location[i][3] = 1; // Use the 4th element of the ghost's data to remember it's on a collectible
-		}
-
-        i++;
-    }
-    render_map(data);
+			try_alternate_moves(data, i);
+		update_map(data, i, old_ghost_x, old_ghost_y);
+		i++;
+	}
+	render_map(data);
 }

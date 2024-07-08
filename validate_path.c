@@ -6,65 +6,13 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 12:17:09 by girts             #+#    #+#             */
-/*   Updated: 2024/07/03 22:42:38 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/04 17:39:25 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-// void	print_visited(char **visited, int rowlen, int collen)
-// {
-// 	int	row;
-// 	int	col;
-
-// 	row = 0;
-// 	while (row < rowlen)
-// 	{
-// 		col = 0;
-// 		while (col < collen)
-// 		{
-// 			if (visited[row][col] == '\0')
-// 				printf("0");
-// 			else
-// 				printf("%c", visited[row][col]);
-// 			col++;
-// 		}
-// 		printf("\n");
-// 		row++;
-// 	}
-// }
-
-static int	is_wall(char *line)
-{
-	int	i;
-
-	i = 0;
-	while (line[i])
-	{
-		if (line[i] != '1')
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-static int	is_map_rectangular(t_data *data)
-{
-	int	first_row_length;
-	int	i;
-
-	i = 1;
-	first_row_length = ft_strlen(data->map[0]);
-	while (i < data->row_len)
-	{
-		if (ft_strlen(data->map[i]) != first_row_length)
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-void check_rules(t_data *data)
+void	check_rules(t_data *data)
 {
 	int	i;
 
@@ -86,131 +34,64 @@ void check_rules(t_data *data)
 	}
 }
 
-int	validate_path(t_data *data)
+void	init_validation(t_data *data, t_validation *val)
 {
-	t_list	*queue;
-	int		x;
-	int		y;
-	t_list	*current_node;
-	int		to_collect;
-	int		exit;
-	t_list	*right_node;
-	t_list	*left_node;
-	t_list	*up_node;
-	t_list	*down_node;
-	char	current_content;
-	char	**visited;
-	int		i;
+	int	i;
+	int	x;
+	int	y;
 
-	check_rules(data);
-	visited = malloc(data->row_len * sizeof(char *));
+	val->visited = malloc(data->row_len * sizeof(char *));
 	i = 0;
 	while (i < data->row_len)
-		visited[i++] = ft_calloc(data->col_len, sizeof(char));
+		val->visited[i++] = ft_calloc(data->col_len, sizeof(char));
 	x = data->x / 16;
 	y = data->y / 16;
-	to_collect = data->collectable_count;
-	exit = 1;
-	current_content = data->map[y][x];
-	queue = ft_lstnew(&current_content);
-	queue->x = x;
-	queue->y = y;
-	visited[y][x] = '1';
-	while (ft_lstsize(queue) > 0)
+	val->to_collect = data->collectable_count;
+	val->exit = 1;
+	val->queue = ft_lstnew(&data->map[y][x]);
+	val->queue->x = x;
+	val->queue->y = y;
+	val->visited[y][x] = '1';
+}
+
+void	check_direction(t_data *data, t_validation *val, int x, int y)
+{
+	char	current_content;
+
+	if (x >= 0 && x < data->col_len && y >= 0 && y < data->row_len && \
+		data->map[y][x] != '1' && val->visited[y][x] != '1')
 	{
-		current_node = ft_lst_remove_last(&queue);
-		x = current_node->x;
-		y = current_node->y;
-		if (y > 0 && data->map[y - 1][x] != '1' && visited[y - 1][x] != '1'\
-				&& visited[y - 1][x] != 'C')
-		{
-			current_content = data->map[y - 1][x];
-			if ((current_content) == 'C' && to_collect > 0)
-			{
-				to_collect--;
-				visited[y - 1][x] = 'C';
-			}
-			else if ((current_content) == 'E' && exit > 0)
-			{
-				exit--;
-				visited[y - 1][x] = '1';
-			}
-			else
-				visited[y - 1][x] = '1';
-			up_node = ft_lstnew(&current_content);
-			up_node->x = x;
-			up_node->y = y - 1;
-			ft_lstadd_front(&queue, up_node);
-		}
-		if (y < data->row_len - 1 && data->map[y + 1][x] != '1' && \
-				visited[y + 1][x] != '1' && visited[y + 1][x] != 'C')
-		{
-			current_content = data->map[y + 1][x];
-			if ((current_content) == 'C' && to_collect > 0)
-			{
-				to_collect--;
-				visited[y + 1][x] = 'C';
-			}
-			else if ((current_content) == 'E' && exit > 0)
-			{
-				visited[y + 1][x] = '1';
-				exit--;
-			}
-			else
-				visited[y + 1][x] = '1';
-			down_node = ft_lstnew(&current_content);
-			down_node->x = x;
-			down_node->y = y + 1;
-			ft_lstadd_front(&queue, down_node);
-		}
-		if (x > 0 && data->map[y][x - 1] != '1' && \
-			visited[y][x - 1] != '1' && visited[y][x - 1] != 'C')
-		{
-			current_content = data->map[y][x - 1];
-			if ((current_content) == 'C' && to_collect > 0)
-			{
-				to_collect--;
-				visited[y][x - 1] = 'C';
-			}
-			else if ((current_content) == 'E' && exit > 0)
-			{
-				exit--;
-				visited[y][x - 1] = '1';
-			}
-			else
-				visited[y][x - 1] = '1';
-			left_node = ft_lstnew(&current_content);
-			left_node->x = x - 1;
-			left_node->y = y;
-			ft_lstadd_front(&queue, left_node);
-		}
-		if (x < data->col_len - 1 && data->map[y][x + 1] != '1' \
-				&& visited[y][x + 1] != '1' && visited[y][x + 1] != 'C')
-		{
-			current_content = data->map[y][x + 1];
-			if ((current_content) == 'C' && to_collect > 0)
-			{
-				to_collect--;
-				visited[y][x + 1] = 'C';
-			}
-			else if ((current_content) == 'E' && exit > 0)
-			{
-				exit--;
-				visited[y][x + 1] = '1';
-			}
-			else
-				visited[y][x + 1] = '1';
-			right_node = ft_lstnew(&current_content);
-			right_node->x = x + 1;
-			right_node->y = y;
-			ft_lstadd_front(&queue, right_node);
-		}
+		current_content = data->map[y][x];
+		if ((current_content) == 'C' && val->to_collect > 0)
+			val->to_collect--;
+		else if ((current_content) == 'E' && val->exit > 0)
+			val->exit--;
+		val->visited[y][x] = '1';
+		add_to_queue(&val->queue, data->map[y][x], x, y);
 	}
-	if (to_collect == 0 && exit == 0)
-		return (1);
-	else
+}
+
+void	check_adjacent(t_data *data, t_validation *val, int x, int y)
+{
+	check_direction(data, val, x, y - 1);
+	check_direction(data, val, x, y + 1);
+	check_direction(data, val, x - 1, y);
+	check_direction(data, val, x + 1, y);
+}
+
+void	validate_path(t_data *data)
+{
+	t_validation	val;
+	t_list			*current;
+
+	check_rules(data);
+	init_validation(data, &val);
+	while (ft_lstsize(val.queue) > 0)
 	{
+		current = ft_lst_remove_last(&val.queue);
+		check_adjacent(data, &val, current->x, current->y);
+	}
+	if (val.to_collect > 0 || val.exit > 0)
 		error(data, "Not all collectibles and exits can be reached.\n");
-		return (0);
-	}
+	free_visited(&val, data->row_len);
 }
