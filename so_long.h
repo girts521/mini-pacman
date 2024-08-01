@@ -6,7 +6,7 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/28 20:10:23 by girts             #+#    #+#             */
-/*   Updated: 2024/07/04 23:12:55 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/28 19:26:49 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,5 +84,11 @@ int		is_map_rectangular(t_data *data);
 void	add_to_queue(t_list **queue, char current_content, int x, int y);
 void	free_visited(t_validation *val, int row_len);
 void	free_resources(t_data *data);
+void	handle_1(t_data *data, int col, int row);
+void	handle_0(t_data *data, int col, int row);
+void	handle_g(t_data *data, int col, int row);
+void	handle_p(t_data *data, int col, int row);
+void	handle_e(t_data *data, int col, int row);
+void	display_moves(t_data *data);
 
 #endif

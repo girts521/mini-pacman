@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   validate_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/04 11:42:24 by girts             #+#    #+#             */
-/*   Updated: 2024/07/04 11:46:26 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/28 21:12:21 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,9 @@ void	add_to_queue(t_list **queue, char current_content, int x, int y)
 
 void	free_visited(t_validation *val, int row_len)
 {
-	int	i;
+	int		i;
+	t_list	*current;
+	t_list	*next;
 
 	i = 0;
 	while (i < row_len)
@@ -63,4 +65,12 @@ void	free_visited(t_validation *val, int row_len)
 		i++;
 	}
 	free(val->visited);
+	current = val->queue;
+	while (current != NULL)
+	{
+		next = current->next;
+		free(current->content);
+		free(current);
+		current = next;
+	}
 }

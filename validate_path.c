@@ -6,7 +6,7 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/02 12:17:09 by girts             #+#    #+#             */
-/*   Updated: 2024/07/04 17:39:25 by girts            ###   ########.fr       */
+/*   Updated: 2024/07/28 20:17:25 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void	validate_path(t_data *data)
 	{
 		current = ft_lst_remove_last(&val.queue);
 		check_adjacent(data, &val, current->x, current->y);
+		free(current);
 	}
 	if (val.to_collect > 0 || val.exit > 0)
 		error(data, "Not all collectibles and exits can be reached.\n");
