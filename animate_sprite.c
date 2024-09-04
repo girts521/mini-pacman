@@ -6,7 +6,7 @@
 /*   By: girts <girts@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/29 22:23:49 by girts             #+#    #+#             */
-/*   Updated: 2024/07/28 21:11:39 by girts            ###   ########.fr       */
+/*   Updated: 2024/09/04 18:17:01 by girts            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 static void	cleanup(char **file, char **str_num, t_data *data, int error_code)
 {
-	if (file)
-		free(file);
-	if (str_num)
-		free(str_num);
+	if (*file)
+		free(*file);
+	if (*str_num)
+		free(*str_num);
 	if (error_code == 1)
 		error(data, "Failed to load image in animate_sprite");
 }
@@ -54,7 +54,7 @@ void	animate_sprite(t_data *data)
 int	animate_loop(t_data *data)
 {
 	data->frame_counter++;
-	if (data->frame_counter >= 5000)
+	if (data->frame_counter >= 10000)
 	{
 		data->ghosts_frame_counter++;
 		animate_sprite(data);

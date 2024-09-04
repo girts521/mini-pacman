@@ -8,7 +8,7 @@ MLX_LIB = $(MLX_DIR)/libmlx_Linux.a
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 
-SRCS = get_next_line.c on_destroy.c draw_sprite.c on_keypress.c free_resources.c \
+SRCS = get_next_line.c get_next_line_utils.c on_destroy.c draw_sprite.c on_keypress.c free_resources.c \
 		 render_map.c load_map.c animate_sprite.c on_win.c on_lose.c move_ghosts.c validate_path.c \
 		 ft_lst_remove_last.c error.c validate_utils.c render_map_utils.c render_map_utils_2.c main.c
 OBJS = $(SRCS:.c=.o)

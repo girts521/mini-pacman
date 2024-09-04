@@ -100,7 +100,7 @@ int	main(int argc, char **argv)
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "Usage: %s <map_file> ghost count\n", argv[0]);
+		fprintf(stderr, "Usage: %s <map_file>\n", argv[0]);
 		return (0);
 	}
 	ft_memset(&data, 0, sizeof(t_data));
