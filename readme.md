@@ -39,7 +39,7 @@ Installation
 
 ### Clone this repository:
 
-`git clone https://github.com/<your-username>/so_long.git`
+`git clone https://github.com/girts521/mini-pacman.git`
 
 ### Navigate to the project directory:
 `cd so_long`
